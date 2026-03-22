@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\User\Models;
 
 use App\Modules\User\Enums\VerificationStatus;
+use Database\Factories\ContactVerificationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -38,6 +40,14 @@ use Illuminate\Support\Carbon;
 #[Fillable(['user_contact_id', 'code', 'status', 'verified_at', 'expires_at'])]
 class ContactVerification extends Model
 {
+    /** @use HasFactory<ContactVerificationFactory> */
+    use HasFactory;
+
+    protected static function newFactory(): ContactVerificationFactory
+    {
+        return ContactVerificationFactory::new();
+    }
+
     /**
      * @return array<string, string>
      */

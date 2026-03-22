@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\User\Models;
 
 use App\Modules\User\Enums\ContactType;
+use Database\Factories\UserContactFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -39,6 +41,14 @@ use Illuminate\Support\Carbon;
 #[Fillable(['user_id', 'type', 'value'])]
 class UserContact extends Model
 {
+    /** @use HasFactory<UserContactFactory> */
+    use HasFactory;
+
+    protected static function newFactory(): UserContactFactory
+    {
+        return UserContactFactory::new();
+    }
+
     /**
      * @return array<string, string>
      */

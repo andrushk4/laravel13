@@ -20,14 +20,15 @@ final class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        /** @var User $user */
         $user = $this->route('user');
+
+        $userId = $user instanceof User ? $user->id : 0;
 
         return [
             'name' => ['sometimes', 'string', 'max:255'],
             'surname' => ['sometimes', 'nullable', 'string', 'max:255'],
             'patronymic' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'email' => ['sometimes', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
+            'email' => ['sometimes', 'string', 'email', 'max:255', 'unique:users,email,'.$userId],
             'password' => ['sometimes', 'string', Password::min(8)],
             'status' => ['sometimes', 'string', new Enum(UserStatus::class)],
             'contacts' => ['sometimes', 'array'],
