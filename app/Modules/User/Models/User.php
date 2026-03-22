@@ -2,19 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace App\Modules\User\Models;
 
 use App\Modules\User\Enums\UserStatus;
-use App\Modules\User\Models\User as ModuleUser;
-use App\Modules\User\Models\UserContact;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 
 /**
- * @deprecated Use App\Modules\User\Models\User instead.
- *
  * @property int $id
  * @property string $name
  * @property string|null $surname
@@ -50,4 +54,45 @@ use Illuminate\Support\Carbon;
  *
  * @mixin \Eloquent
  */
-class User extends ModuleUser {}
+#[Fillable(['name', 'surname', 'patronymic', 'email', 'password', 'status'])]
+#[Hidden(['password', 'remember_token'])]
+class User extends Authenticatable
+{
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable;
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'status' => UserStatus::class,
+        ];
+    }
+
+    /**
+     * @return HasMany<UserContact, $this>
+     */
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(UserContact::class);
+    }
+
+    /**
+     * @return BelongsToMany<Role, $this>
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class)
+            ->withPivot('assigned_at')
+            ->withTimestamps();
+    }
+
+    protected static function newFactory(): UserFactory
+    {
+        return UserFactory::new();
+    }
+}
