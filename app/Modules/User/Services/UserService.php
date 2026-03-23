@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\User\Services;
 
-use App\Modules\User\DTOs\CreateUserDTO;
-use App\Modules\User\DTOs\UpdateUserDTO;
 use App\Modules\User\Models\User;
 use App\Modules\User\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -29,14 +27,20 @@ final readonly class UserService
         return $this->userRepository->findByIdOrFail($id);
     }
 
-    public function create(CreateUserDTO $dto): User
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function create(array $data): User
     {
-        return $this->userRepository->create($dto);
+        return $this->userRepository->create($data);
     }
 
-    public function update(User $user, UpdateUserDTO $dto): User
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function update(User $user, array $data): User
     {
-        return $this->userRepository->update($user, $dto);
+        return $this->userRepository->update($user, $data);
     }
 
     public function delete(User $user): bool

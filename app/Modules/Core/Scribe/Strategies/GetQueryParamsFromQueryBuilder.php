@@ -55,7 +55,7 @@ final class GetQueryParamsFromQueryBuilder extends Strategy
             $params['include'] = [
                 'name' => 'include',
                 'type' => 'string',
-                'description' => 'Связи для подключения (через запятую): `'.implode('`, `', array_keys($config['includes'])).'`.',
+                'description' => 'Связи для подключения (через запятую): `' . implode('`, `', array_keys($config['includes'])) . '`.',
                 'required' => false,
                 'example' => implode(',', array_slice(array_keys($config['includes']), 0, 2)),
             ];
@@ -63,14 +63,14 @@ final class GetQueryParamsFromQueryBuilder extends Strategy
 
         foreach ($config['filters'] as $field => $opts) {
             $enumValues = [];
-            $description = ($opts['type'] === 'exact' ? 'Точное совпадение' : 'Частичное совпадение').'.';
+            $description = ($opts['type'] === 'exact' ? 'Точное совпадение' : 'Частичное совпадение') . '.';
 
             if (isset($opts['enum']) && enum_exists($opts['enum'])) {
                 $enumValues = array_map(
                     static fn (\UnitEnum $case): string => $case instanceof \BackedEnum ? (string) $case->value : $case->name,
                     $opts['enum']::cases(),
                 );
-                $description .= ' Значения: `'.implode('`, `', $enumValues).'`.';
+                $description .= ' Значения: `' . implode('`, `', $enumValues) . '`.';
             }
 
             $params["filter[$field]"] = [
@@ -86,7 +86,7 @@ final class GetQueryParamsFromQueryBuilder extends Strategy
         $params['sort'] = [
             'name' => 'sort',
             'type' => 'string',
-            'description' => 'Сортировка. Префикс `-` для DESC. Поля: `'.implode('`, `', $config['sorts']).'`. По умолчанию: `'.$config['defaultSort'].'`.',
+            'description' => 'Сортировка. Префикс `-` для DESC. Поля: `' . implode('`, `', $config['sorts']) . '`. По умолчанию: `' . $config['defaultSort'] . '`.',
             'required' => false,
             'example' => $config['defaultSort'],
         ];
@@ -97,7 +97,7 @@ final class GetQueryParamsFromQueryBuilder extends Strategy
             $params["fields[$fieldKeys[0]]"] = [
                 'name' => "fields[$fieldKeys[0]]",
                 'type' => 'string',
-                'description' => 'Выборка полей (через запятую). Доступные ресурсы: `'.implode('`, `', $fieldKeys).'`.',
+                'description' => 'Выборка полей (через запятую). Доступные ресурсы: `' . implode('`, `', $fieldKeys) . '`.',
                 'required' => false,
                 'example' => null,
             ];

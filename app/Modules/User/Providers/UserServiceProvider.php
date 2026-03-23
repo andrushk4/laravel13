@@ -20,6 +20,6 @@ final class UserServiceProvider extends ServiceProvider
     {
         Route::prefix('api')
             ->middleware('api')
-            ->group(__DIR__.'/../Routes/api.php');
+            ->group(__DIR__ . '/../Routes/api.php');
     }
 }

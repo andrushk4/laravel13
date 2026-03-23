@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\User\Repositories\Contracts;
 
-use App\Modules\User\DTOs\CreateUserDTO;
-use App\Modules\User\DTOs\UpdateUserDTO;
 use App\Modules\User\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -20,9 +18,15 @@ interface UserRepositoryInterface
 
     public function findByIdOrFail(int $id): User;
 
-    public function create(CreateUserDTO $dto): User;
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function create(array $data): User;
 
-    public function update(User $user, UpdateUserDTO $dto): User;
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function update(User $user, array $data): User;
 
     public function delete(User $user): bool;
 }

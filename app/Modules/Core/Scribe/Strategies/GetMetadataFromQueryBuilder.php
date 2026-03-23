@@ -36,7 +36,7 @@ final class GetMetadataFromQueryBuilder extends Strategy
         $generatedDocs = $this->generateMarkdown($config);
 
         $description = $existingDescription !== ''
-            ? $existingDescription."\n\n".$generatedDocs
+            ? $existingDescription . "\n\n" . $generatedDocs
             : $generatedDocs;
 
         return ['description' => $description];
@@ -74,7 +74,7 @@ final class GetMetadataFromQueryBuilder extends Strategy
             $md .= "| `{$name}` | {$description} |\n";
         }
 
-        $md .= "\nПример: `?include=".implode(',', array_keys($includes))."`\n\n";
+        $md .= "\nПример: `?include=" . implode(',', array_keys($includes)) . "`\n\n";
 
         return $md;
     }
@@ -98,7 +98,7 @@ final class GetMetadataFromQueryBuilder extends Strategy
 
             if (isset($opts['enum']) && enum_exists($opts['enum'])) {
                 $values = array_map(
-                    static fn (\UnitEnum $case): string => '`'.($case instanceof \BackedEnum ? $case->value : $case->name).'`',
+                    static fn (\UnitEnum $case): string => '`' . ($case instanceof \BackedEnum ? $case->value : $case->name) . '`',
                     $opts['enum']::cases(),
                 );
                 $description = implode(', ', $values);
@@ -122,9 +122,9 @@ final class GetMetadataFromQueryBuilder extends Strategy
         }
 
         $md = "## Сортировка (sort)\n\n";
-        $md .= 'Доступные поля: `'.implode('`, `', $sorts).'`. ';
+        $md .= 'Доступные поля: `' . implode('`, `', $sorts) . '`. ';
         $md .= "По умолчанию: `{$defaultSort}`. Префикс `-` — по убыванию.\n\n";
-        $md .= 'Пример: `?sort='.($sorts[0] ?? 'name').'` или `?sort='.$defaultSort.','.($sorts[0] ?? 'name')."`\n\n";
+        $md .= 'Пример: `?sort=' . ($sorts[0] ?? 'name') . '` или `?sort=' . $defaultSort . ',' . ($sorts[0] ?? 'name') . "`\n\n";
 
         return $md;
     }
@@ -143,7 +143,7 @@ final class GetMetadataFromQueryBuilder extends Strategy
         $md .= "|--------|---------------|\n";
 
         foreach ($fields as $resource => $fieldList) {
-            $formatted = '`'.implode('`, `', $fieldList).'`';
+            $formatted = '`' . implode('`, `', $fieldList) . '`';
             $md .= "| `{$resource}` | {$formatted} |\n";
         }
 

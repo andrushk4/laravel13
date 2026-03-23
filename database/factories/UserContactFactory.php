@@ -46,7 +46,7 @@ class UserContactFactory extends Factory
     {
         return $this->state(fn () => [
             'type' => ContactType::Telegram,
-            'value' => '@'.fake()->userName(),
+            'value' => '@' . fake()->userName(),
         ]);
     }
 }

@@ -44,7 +44,7 @@ final class UserController extends Controller
     DESC)]
     public function store(StoreUserRequest $request): JsonResponse
     {
-        $user = $this->userService->create($request->toDTO());
+        $user = $this->userService->create($request->validated());
 
         return (new UserResource($user))->toResponse($request);
     }
@@ -64,7 +64,7 @@ final class UserController extends Controller
     DESC)]
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
-        $user = $this->userService->update($user, $request->toDTO());
+        $user = $this->userService->update($user, $request->validated());
 
         return (new UserResource($user))->toResponse($request);
     }

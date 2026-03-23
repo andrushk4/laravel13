@@ -6,6 +6,7 @@ namespace App\Modules\User\Resources;
 
 use App\Modules\Core\Resources\BaseResource;
 use App\Modules\User\Models\Role;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Http\Request;
 
 /**
@@ -24,7 +25,7 @@ final class RoleResource extends BaseResource
             'slug' => $this->whenHas('slug'),
             'description' => $this->whenHas('description'),
             'pivot' => $this->whenPivotLoaded('role_user', function () {
-                /** @var \Illuminate\Database\Eloquent\Relations\Pivot|null $pivot */
+                /** @var Pivot|null $pivot */
                 $pivot = $this->resource->getRelation('pivot');
 
                 return [

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\User\Repositories;
 
-use App\Modules\User\DTOs\ContactDTO;
-use App\Modules\User\DTOs\CreateUserDTO;
-use App\Modules\User\DTOs\UpdateUserDTO;
 use App\Modules\User\Enums\ContactType;
 use App\Modules\User\Enums\UserStatus;
 use App\Modules\User\Enums\VerificationStatus;
@@ -14,6 +11,7 @@ use App\Modules\User\Models\User;
 use App\Modules\User\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedInclude;
@@ -111,43 +109,38 @@ final readonly class UserRepository implements UserRepositoryInterface
         return User::query()->with('contacts')->findOrFail($id);
     }
 
-    public function create(CreateUserDTO $dto): User
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function create(array $data): User
     {
-        return DB::transaction(function () use ($dto): User {
-            $user = User::query()->create([
-                'name' => $dto->name,
-                'surname' => $dto->surname,
-                'patronymic' => $dto->patronymic,
-                'email' => $dto->email,
-                'password' => $dto->password,
-                'status' => $dto->status,
-            ]);
+        return DB::transaction(function () use ($data): User {
+            /** @var array<int, array{type: string, value: string}> $contacts */
+            $contacts = Arr::pull($data, 'contacts', []);
 
-            $this->syncContacts($user, $dto->contacts);
+            $data['status'] ??= UserStatus::Created;
+
+            $user = User::query()->create($data);
+
+            $this->syncContacts($user, $contacts);
 
             return $user->load('contacts');
         });
     }
 
-    public function update(User $user, UpdateUserDTO $dto): User
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function update(User $user, array $data): User
     {
-        return DB::transaction(function () use ($user, $dto): User {
-            $data = array_filter(
-                [
-                    'name' => $dto->name,
-                    'surname' => $dto->surname,
-                    'patronymic' => $dto->patronymic,
-                    'email' => $dto->email,
-                    'password' => $dto->password,
-                    'status' => $dto->status,
-                ],
-                static fn (mixed $value): bool => $value !== null,
-            );
+        return DB::transaction(function () use ($user, $data): User {
+            /** @var array<int, array{type: string, value: string}>|null $contacts */
+            $contacts = Arr::pull($data, 'contacts');
 
             $user->update($data);
 
-            if ($dto->contacts !== null) {
-                $this->syncContacts($user, $dto->contacts);
+            if ($contacts !== null) {
+                $this->syncContacts($user, $contacts);
             }
 
             return $user->refresh()->load('contacts');
@@ -160,7 +153,7 @@ final readonly class UserRepository implements UserRepositoryInterface
     }
 
     /**
-     * @param  array<int, ContactDTO>  $contacts
+     * @param  array<int, array{type: string, value: string}>  $contacts
      */
     private function syncContacts(User $user, array $contacts): void
     {
@@ -168,8 +161,8 @@ final readonly class UserRepository implements UserRepositoryInterface
 
         foreach ($contacts as $contact) {
             $user->contacts()->create([
-                'type' => $contact->type,
-                'value' => $contact->value,
+                'type' => $contact['type'],
+                'value' => $contact['value'],
             ]);
         }
     }
