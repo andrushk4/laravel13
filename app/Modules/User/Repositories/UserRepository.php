@@ -4,21 +4,23 @@ declare(strict_types=1);
 
 namespace App\Modules\User\Repositories;
 
+use App\Modules\Core\Repositories\BaseRepository;
 use App\Modules\User\Enums\ContactType;
 use App\Modules\User\Enums\UserStatus;
 use App\Modules\User\Enums\VerificationStatus;
 use App\Modules\User\Models\User;
 use App\Modules\User\Repositories\Contracts\UserRepositoryInterface;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\AllowedInclude;
-use Spatie\QueryBuilder\QueryBuilder;
 
-final readonly class UserRepository implements UserRepositoryInterface
+final readonly class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
+    protected function model(): string
+    {
+        return User::class;
+    }
+
     /**
      * @return array{
      *     includes: array<string, string>,
@@ -28,7 +30,7 @@ final readonly class UserRepository implements UserRepositoryInterface
      *     fields: array<string, array<int, string>>,
      * }
      */
-    public static function queryBuilderConfig(): array
+    protected static function queryBuilderConfig(): array
     {
         return [
             'includes' => [
@@ -58,44 +60,6 @@ final readonly class UserRepository implements UserRepositoryInterface
         ];
     }
 
-    /**
-     * @return LengthAwarePaginator<int, User>
-     */
-    public function paginate(int $perPage = 15): LengthAwarePaginator
-    {
-        $config = self::queryBuilderConfig();
-
-        $filters = array_map(
-            static fn (string $field, array $opts): AllowedFilter => $opts['type'] === 'exact'
-                ? AllowedFilter::exact($field)
-                : AllowedFilter::partial($field),
-            array_keys($config['filters']),
-            $config['filters'],
-        );
-
-        $includes = array_map(
-            static fn (string $name): AllowedInclude => AllowedInclude::relationship($name),
-            array_keys($config['includes']),
-        );
-
-        $fields = array_merge(...array_map(
-            static fn (string $resource, array $fieldList): array => array_map(
-                static fn (string $field): string => "{$resource}.{$field}",
-                $fieldList,
-            ),
-            array_keys($config['fields']),
-            $config['fields'],
-        ));
-
-        return QueryBuilder::for(User::class)
-            ->allowedFields(...$fields)
-            ->allowedIncludes(...$includes)
-            ->allowedFilters(...$filters)
-            ->allowedSorts(...$config['sorts'])
-            ->defaultSort($config['defaultSort'])
-            ->paginate($perPage);
-    }
-
     public function findById(int $id): ?User
     {
         return User::query()->with('contacts')->find($id);
@@ -115,7 +79,7 @@ final readonly class UserRepository implements UserRepositoryInterface
     public function create(array $data): User
     {
         return DB::transaction(function () use ($data): User {
-            /** @var array<int, array{type: string, value: string}> $contacts */
+            /** @var array<int, array{type: string, value: string, order?: int}> $contacts */
             $contacts = Arr::pull($data, 'contacts', []);
 
             $data['status'] ??= UserStatus::Created;
@@ -134,7 +98,7 @@ final readonly class UserRepository implements UserRepositoryInterface
     public function update(User $user, array $data): User
     {
         return DB::transaction(function () use ($user, $data): User {
-            /** @var array<int, array{type: string, value: string}>|null $contacts */
+            /** @var array<int, array{type: string, value: string, order?: int}>|null $contacts */
             $contacts = Arr::pull($data, 'contacts');
 
             $user->update($data);
@@ -153,17 +117,23 @@ final readonly class UserRepository implements UserRepositoryInterface
     }
 
     /**
-     * @param  array<int, array{type: string, value: string}>  $contacts
+     * @param  array<int, array{type: string, value: string, order?: int}>  $contacts
      */
     private function syncContacts(User $user, array $contacts): void
     {
         $user->contacts()->delete();
 
         foreach ($contacts as $contact) {
-            $user->contacts()->create([
+            $payload = [
                 'type' => $contact['type'],
                 'value' => $contact['value'],
-            ]);
+            ];
+
+            if (isset($contact['order'])) {
+                $payload['order'] = $contact['order'];
+            }
+
+            $user->contacts()->create($payload);
         }
     }
 }

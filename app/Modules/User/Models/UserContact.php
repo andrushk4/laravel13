@@ -7,12 +7,15 @@ namespace App\Modules\User\Models;
 use App\Modules\User\Enums\ContactType;
 use Database\Factories\UserContactFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Spatie\EloquentSortable\Sortable;
+use Spatie\EloquentSortable\SortableTrait;
 
 /**
  * @property int $id
@@ -38,11 +41,27 @@ use Illuminate\Support\Carbon;
  *
  * @mixin \Eloquent
  */
-#[Fillable(['user_id', 'type', 'value'])]
-class UserContact extends Model
+#[Fillable(['user_id', 'type', 'value', 'order'])]
+class UserContact extends Model implements Sortable
 {
     /** @use HasFactory<UserContactFactory> */
     use HasFactory;
+
+    use SortableTrait;
+
+    /** @var array<string, mixed> */
+    public array $sortable = [
+        'order_column_name' => 'order',
+        'sort_when_creating' => true,
+    ];
+
+    /**
+     * @return Builder<static>
+     */
+    public function buildSortQuery(): Builder
+    {
+        return static::query()->where('user_id', $this->user_id);
+    }
 
     protected static function newFactory(): UserContactFactory
     {

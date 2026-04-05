@@ -78,7 +78,7 @@ class User extends Authenticatable
      */
     public function contacts(): HasMany
     {
-        return $this->hasMany(UserContact::class);
+        return $this->hasMany(UserContact::class)->ordered();
     }
 
     /**
@@ -86,9 +86,7 @@ class User extends Authenticatable
      */
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class)
-            ->withPivot('assigned_at')
-            ->withTimestamps();
+        return $this->belongsToMany(Role::class)->withPivot('assigned_at')->withTimestamps();
     }
 
     protected static function newFactory(): UserFactory

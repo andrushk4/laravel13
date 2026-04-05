@@ -22,6 +22,7 @@ final class UserContactResource extends BaseResource
             'id' => $this->id,
             'type' => $this->whenHas('type'),
             'value' => $this->whenHas('value'),
+            'order' => $this->whenHas('order'),
             'verifications' => ContactVerificationResource::collection($this->whenLoaded('verifications')),
             'created_at' => $this->whenHas('created_at'),
             'updated_at' => $this->whenHas('updated_at'),

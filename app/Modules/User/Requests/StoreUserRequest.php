@@ -27,6 +27,7 @@ final class StoreUserRequest extends FormRequest
             'contacts' => ['sometimes', 'array'],
             'contacts.*.type' => ['required', 'string', new Enum(ContactType::class)],
             'contacts.*.value' => ['required', 'string', 'max:255'],
+            'contacts.*.order' => ['sometimes', 'integer', 'min:0'],
         ];
     }
 }
