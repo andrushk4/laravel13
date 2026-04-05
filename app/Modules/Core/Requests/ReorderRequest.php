@@ -16,7 +16,7 @@ final class ReorderRequest extends FormRequest
     public function rules(): array
     {
         /** @var class-string<Model&Sortable> $modelClass */
-        $modelClass = $this->route()->defaults['model'];
+        $modelClass = $this->route()?->defaults['model'];
         $table = (new $modelClass)->getTable();
 
         return [

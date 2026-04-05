@@ -7,6 +7,7 @@ namespace App\Modules\Core\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Core\Requests\ReorderRequest;
 use App\Modules\Core\Traits\ApiResponse;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Spatie\EloquentSortable\Sortable;
 
@@ -16,8 +17,8 @@ final class ReorderController extends Controller
 
     public function __invoke(ReorderRequest $request): JsonResponse
     {
-        /** @var class-string<Sortable> $modelClass */
-        $modelClass = $request->route()->defaults['model'];
+        /** @var class-string<Model&Sortable> $modelClass */
+        $modelClass = $request->route()?->defaults['model'];
 
         foreach ($request->validated('order') as $position => $id) {
             $modelClass::query()
