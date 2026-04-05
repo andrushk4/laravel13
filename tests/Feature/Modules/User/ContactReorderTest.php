@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\User;
 
-use App\Modules\User\Enums\ContactType;
 use App\Modules\User\Models\User;
 use App\Modules\User\Models\UserContact;
 use Illuminate\Foundation\Testing\RefreshDatabase;
